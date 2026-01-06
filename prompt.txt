@@ -1,0 +1,198 @@
+# AI-Guided Manufacturing Inspection System - Project Generation Prompt
+
+## Context
+You are building a multi-camera inspection system for manufacturing quality control. Parts move through an inspection station where multiple cameras capture images simultaneously, run AI detection models, and generate unified quality reports.
+
+## System Requirements
+
+### Core Flow
+1. **Trigger Event**: Controller signals inspection cycle start
+2. **Parallel Capture**: Capture frames from 2 cameras simultaneously
+3. **Per-Camera Processing Pipeline**:
+   - Preprocess: Image normalization, enhancement
+   - Inference: Run defect detection model
+   - Post-process: Parse results, apply thresholds
+4. **Aggregation**: Combine results from all cameras
+5. **Report Generation**: Unified inspection report with pass/fail decision
+
+### Technical Constraints
+- Mock all image processing and ML models (use random/deterministic data)
+- System must handle 10 inspection cycles sequentially
+- Parallel camera operations must not block each other
+- Each camera operates independently with its own processing pipeline
+- Manufacturing environment: 24/7 operation, high reliability required
+
+## Architecture Requirements
+
+### Project Structure
+```
+inspection_system/
+├── src/
+│   ├── core/
+│   │   ├── controller.py          # Main orchestrator
+│   │   ├── camera.py               # Camera interface
+│   │   └── inspector.py            # Inspection pipeline manager
+│   ├── processing/
+│   │   ├── preprocessor.py         # Image preprocessing
+│   │   ├── inference_engine.py     # Model inference
+│   │   └── postprocessor.py        # Result post-processing
+│   ├── aggregation/
+│   │   ├── aggregator.py           # Multi-camera result aggregator
+│   │   └── reporter.py             # Report generator
+│   └── utils/
+│       ├── logger.py               # Structured logging
+│       └── metrics.py              # Performance metrics
+├── main.py                         # Entry point (runs 10 cycles)
+├── requirements.txt                # Dependencies
+└── README.md                       # Documentation
+```
+
+### Design Principles
+1. **Separation of Concerns**: Each component has single responsibility
+2. **Dependency Injection**: Components receive dependencies, not create them
+3. **Observer Pattern**: Logging and metrics as observers
+4. **Factory Pattern**: Camera and processor creation
+5. **Strategy Pattern**: Different detection strategies per camera
+
+### Key Components
+
+#### 1. Controller (Orchestrator)
+- Triggers inspection cycles
+- Coordinates parallel camera operations
+- Manages pipeline execution
+- Handles cycle timing and synchronization
+
+#### 2. Camera Interface
+- Mock frame capture (return synthetic data)
+- Simulate capture latency (50-150ms random)
+- Include camera metadata (ID, timestamp, resolution)
+- Handle capture failures (simulate 5% failure rate)
+
+#### 3. Processing Pipeline
+**Preprocessor**:
+- Mock normalization, noise reduction
+- Add processing time (20-40ms)
+- Return preprocessed data structure
+
+**Inference Engine**:
+- Mock ML model inference
+- Generate random defect detections (coordinates, confidence, type)
+- Simulate GPU processing time (100-200ms)
+- Return detection results with bounding boxes
+
+**Postprocessor**:
+- Filter low-confidence detections (< 0.7 threshold)
+- Classify defect severity (minor, major, critical)
+- Calculate quality score per frame
+
+#### 4. Aggregator
+- Merge results from all cameras
+- Apply voting logic for overlapping defects
+- Calculate overall part quality score
+- Determine pass/fail decision
+
+#### 5. Reporter
+- Generate structured report (JSON or dict)
+- Include: cycle_id, timestamp, camera_results, aggregated_score, decision, processing_times
+- Log report to console and optionally to file
+
+### Performance & Stability Requirements
+
+#### Error Handling
+- Graceful degradation: if one camera fails, continue with others
+- Retry logic: 3 attempts for camera capture failures
+- Timeout handling: max 5 seconds per inspection cycle
+- Exception logging: capture and log all errors with context
+
+#### Observability
+- Structured logging (INFO, WARNING, ERROR levels)
+- Metrics collection:
+  - Cycle duration
+  - Per-camera processing time
+  - Defect detection rate
+  - Pass/fail ratio
+  - Error counts by type
+- Summary statistics after 10 cycles
+
+#### Concurrency
+- Use threading or asyncio for parallel camera capture
+- Thread-safe logging and metrics collection
+- No race conditions in shared state
+- Proper resource cleanup
+
+### Mock Implementation Guidelines
+
+#### Camera Frame Mock
+```python
+{
+    "camera_id": "CAM_01",
+    "timestamp": "2024-01-06T10:30:45.123Z",
+    "frame_data": <numpy array shape (1080, 1920, 3) or bytes>,
+    "metadata": {"exposure": 10, "gain": 1.5}
+}
+```
+
+#### Detection Result Mock
+```python
+{
+    "detections": [
+        {
+            "bbox": [x, y, w, h],
+            "confidence": 0.85,
+            "class": "scratch",
+            "severity": "minor"
+        }
+    ],
+    "quality_score": 0.92,
+    "processing_time_ms": 150
+}
+```
+
+#### Inspection Report Mock
+```python
+{
+    "cycle_id": 1,
+    "timestamp": "2024-01-06T10:30:45.500Z",
+    "cameras": {
+        "CAM_01": {"score": 0.92, "defects": 1},
+        "CAM_02": {"score": 0.88, "defects": 2}
+    },
+    "aggregated_score": 0.90,
+    "decision": "PASS",
+    "total_time_ms": 450,
+    "defects_found": 3
+}
+```
+
+### Main Execution
+The `main.py` should:
+1. Initialize system components (controller, cameras, processors, aggregator, reporter)
+2. Run 10 inspection cycles in a loop
+3. Add 500ms delay between cycles (simulate part movement)
+4. Print progress indicator for each cycle
+5. Display summary statistics at end
+6. Handle Ctrl+C gracefully
+
+### Code Quality
+- Type hints for function signatures
+- Docstrings for classes and public methods
+- Clear variable names
+- Constants in UPPERCASE
+- Configuration values extracted (not hardcoded in logic)
+
+### Output Requirements
+- Console output showing each cycle progress
+- Logs showing pipeline execution
+- Final summary with metrics (avg cycle time, pass rate, defect stats)
+- Clean, readable code that demonstrates production mindset
+
+## Deliverable
+Generate a complete, runnable Python project following this specification. Use standard library where possible (threading, logging, time, random). If external dependencies needed (like numpy for mock arrays), include in requirements.txt. The system should demonstrate robust architecture suitable for real manufacturing environment, even with mocked components.
+
+## Success Criteria
+- All 10 cycles complete successfully
+- Parallel camera operations visible in logs
+- Error scenarios handled gracefully (demonstrate with occasional failures)
+- Clear separation between components
+- Performance metrics collected and displayed
+- Code is clean, documented, and production-ready in structure

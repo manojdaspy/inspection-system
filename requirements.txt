@@ -1,0 +1,15 @@
+# Manufacturing Inspection System Dependencies
+# All dependencies use standard library - no external packages required
+
+# Python 3.8+ standard library modules used:
+# - threading (parallel execution)
+# - concurrent.futures (ThreadPoolExecutor)
+# - logging (structured logging)
+# - time (timing and delays)
+# - random (mock data generation)
+# - datetime (timestamps)
+# - signal (graceful shutdown)
+# - collections (defaultdict)
+# - typing (type hints)
+
+# No external dependencies required for mock implementation
